@@ -3,19 +3,17 @@ import re
 import time
 
 import requests
-
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver
 
-webhook_url = "discodeのwebhookを入力してください"
-target_dir = "監視フォルダのパスを入力してください"
-target_file = "latest.log"
+from config.app import TARGET_DIR, TARGET_FILE, WEBHOOK_URL
 
 
 def SendMessage(message: str) -> None:
-    # discode以外のサービスのwebhookの場合はここを変更してください
+    # discord以外のサービスのwebhookの場合はここを変更してください
     main_content = {"content": message}
-    requests.post(webhook_url, main_content)
+    requests.post(WEBHOOK_URL, main_content)
+
 
 def MessageCreation(text: str):
     # 参加,退出以外のメッセージが必要な場合はここに書く
@@ -41,6 +39,7 @@ def GetLog(filepath: str):
     if text is not None:
         SendMessage(text)
 
+
 class ChangeHandler(FileSystemEventHandler):
     # フォルダ変更時のイベント
     def on_modified(self, event):
@@ -52,16 +51,17 @@ class ChangeHandler(FileSystemEventHandler):
 
         # 監視対応のファイルでない場合無視する
         filename = os.path.basename(filepath)
-        if filename != target_file:
+        if filename != TARGET_FILE:
             return
 
         GetLog(filepath)
-        
+
+
 if __name__ in "__main__":
     while 1:
         event_handler = ChangeHandler()
         observer = PollingObserver()
-        observer.schedule(event_handler, target_dir, recursive=True)
+        observer.schedule(event_handler, TARGET_DIR, recursive=True)
         observer.start()
         try:
             while True:
