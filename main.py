@@ -13,7 +13,6 @@ class MinecraftLogMonitor:
         self.target_dir = target_dir
         self.target_file = target_file
         self.webhook_url = webhook_url
-        self.prev_logs = []
         self.log_position = 0
 
     def send_message(self, message: str) -> None:
