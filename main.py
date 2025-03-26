@@ -1,5 +1,4 @@
 import os
-import re
 import time
 
 import requests
@@ -15,7 +14,10 @@ class MinecraftLogMonitor:
         self.target_dir = target_dir
         self.target_file = target_file
         self.webhook_url = webhook_url
-        self.log_position = 0
+
+        # 起動時にファイルサイズ（末尾位置）を取得してポジションとする
+        full_path = os.path.join(target_dir, target_file)
+        self.log_position = os.path.getsize(full_path)
 
     def send_message(self, message: str) -> None:
         main_content = {"content": message}
@@ -24,6 +26,10 @@ class MinecraftLogMonitor:
 
     def get_log(self, filepath: str):
         with open(filepath, "r", errors="ignore") as f:
+            # # ログローテーションと判断してポジションをリセット
+            if self.log_position > os.path.getsize(filepath):
+                self.log_position = 0
+
             f.seek(self.log_position)
             logs = f.readlines()
             self.log_position = f.tell()
