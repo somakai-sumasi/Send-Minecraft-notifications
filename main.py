@@ -21,8 +21,11 @@ class MinecraftLogMonitor:
 
     def send_message(self, message: str) -> None:
         main_content = {"content": message}
-        response = requests.post(self.webhook_url, json=main_content)
-        response.raise_for_status()
+        try:
+            response = requests.post(self.webhook_url, json=main_content)
+            response.raise_for_status()
+        except Exception as err:
+            print(f"予期せぬエラーが発生しました: {err}")
 
     def get_log(self, filepath: str):
         with open(filepath, "r", errors="ignore") as f:
